@@ -36,18 +36,8 @@ public class TaskController {
         return taskService.updateTask(task);
     }
 
-    @GetMapping("getByTitle/{title}")
-    public Flux<Task> findTasksByTitle(@PathVariable String title) {
-        return taskService.findTasksByTitle(title);
-    }
-
     @DeleteMapping("deleteTask/{id}")
     public Mono<Boolean> deleteTask(@PathVariable String id) {
         return taskService.deleteTask(id);
-    }
-
-    @DeleteMapping("/sub-tasks/deleteSubTask/{taskId}/{subTaskTitle}")
-    public Mono<Task> deleteSubTask(@PathVariable String taskId, @PathVariable String subTaskTitle) {
-        return taskService.removeSubTask(taskId, subTaskTitle);
     }
 }
