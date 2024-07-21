@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class TaskService {
 
@@ -36,40 +39,100 @@ public class TaskService {
     }
 
     public Mono<Task> updateTask(Task task) {
-        return reactiveMongoTemplate.save(task);
+        Query query = new Query(Criteria.where("_id").is(task.getId()));
+        Update update = new Update()
+                .set("title", task.getTitle())
+                .set("description", task.getDescription())
+                .set("subTasks", task.getSubTasks());
+        return reactiveMongoTemplate.findAndModify(query, update, Task.class)
+                .defaultIfEmpty(task)
+                .flatMap(updatedTask -> {
+                    if (updatedTask == null) {
+                        return Mono.error(new RuntimeException("Task not found"));
+                    }
+                    return Mono.just(updatedTask);
+                });
     }
 
-    public Mono<Void> deleteTask(String id) {
+    public Mono<Boolean> deleteTask(String id) {
         Query query = new Query(Criteria.where("_id").is(id));
-        return reactiveMongoTemplate.remove(query, Task.class).then();
+        return reactiveMongoTemplate.remove(Query.query(Criteria.where("id").is(id)), Task.class)
+                .flatMap(deleteResult -> {
+                    if (deleteResult.getDeletedCount() > 0) {
+                        return Mono.just(true);
+                    } else {
+                        return Mono.just(false);
+                    }
+                });
     }
 
     public Flux<Task> findTasksByTitle(String title) {
-        Query query = new Query(Criteria.where("title").is(title));
-        return reactiveMongoTemplate.find(query, Task.class);
+        return reactiveMongoTemplate.findAll(Task.class)
+                .filter(task -> taskContainsTitle(task, title));
     }
 
-    public Mono<Task> deleteSubTask(String taskId, String subTaskTitle) {
-        Query query = new Query(Criteria.where("_id").is(taskId));
-        Update update = new Update().pull("subTasks", new Query(Criteria.where("title").is(subTaskTitle)));
-        return reactiveMongoTemplate.findAndModify(query, update, Task.class)
-                .flatMap(task -> {
-                    if (task == null) {
-                        return Mono.error(new RuntimeException("Task not found"));
-                    }
-                    return Mono.just(task);
-                });
+    public Mono<Task> removeSubTask(String taskId, String subTaskTitle) {
+        return reactiveMongoTemplate.findById(taskId, Task.class)
+                .flatMap(task -> removeSubTaskRecursive(task.getSubTasks(), subTaskTitle)
+                        .then(Mono.just(task)))
+                .flatMap(task -> reactiveMongoTemplate.save(task));
     }
 
-    public Mono<Task> addSubTask(String taskId, SubTask subTask) {
-        Query query = new Query(Criteria.where("_id").is(taskId));
-        Update update = new Update().addToSet("subTasks", subTask);
-        return reactiveMongoTemplate.findAndModify(query, update, Task.class)
-                .flatMap(task -> {
-                    if (task == null) {
-                        return Mono.error(new RuntimeException("Task not found"));
+    /**
+     * Utility method for removing a sub task.
+     * @param subTasks
+     * @param subTaskTitle
+     * @return
+     */
+    private Mono<Boolean> removeSubTaskRecursive(List<SubTask> subTasks, String subTaskTitle) {
+        if (subTasks == null || subTasks.isEmpty()) {
+            return Mono.just(false);
+        }
+
+        // Collect the tasks to remove in a separate list to avoid concurrent modification
+        List<SubTask> tasksToRemove = new ArrayList<>();
+
+        return Flux.fromIterable(subTasks)
+                .flatMap(subTask -> {
+                    if (subTask.getTitle().equals(subTaskTitle)) {
+                        tasksToRemove.add(subTask);
+                        return Mono.just(true);
+                    } else {
+                        return removeSubTaskRecursive(subTask.getSubTasks(), subTaskTitle);
                     }
-                    return Mono.just(task);
-                });
+                })
+                .then(Mono.defer(() -> {
+                    subTasks.removeAll(tasksToRemove);
+                    return Mono.just(!tasksToRemove.isEmpty());
+                }));
+    }
+
+    /**
+     * Utility methods for us to find sub-tasks by title.
+     * Currently, it also fetches the rest of the JSON object.
+     * @param task
+     * @param title
+     * @return
+     */
+    private boolean taskContainsTitle(Task task, String title) {
+        if (task.getTitle().equalsIgnoreCase(title)) {
+            return true;
+        }
+        return subTaskContainsTitle(task.getSubTasks(), title);
+    }
+
+    private boolean subTaskContainsTitle(List<SubTask> subTasks, String title) {
+        if (subTasks == null) {
+            return false;
+        }
+        for (SubTask subTask : subTasks) {
+            if (subTask.getTitle().equalsIgnoreCase(title)) {
+                return true;
+            }
+            if (subTaskContainsTitle(subTask.getSubTasks(), title)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
