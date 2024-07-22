@@ -1,6 +1,7 @@
 package management.task.prototal.task_manager.service;
 
-import management.task.prototal.task_manager.entity.SubTask;
+import com.mongodb.client.result.DeleteResult;
+import management.task.prototal.task_manager.exception.DuplicateTaskException;
 import org.springframework.beans.factory.annotation.Autowired;
 import management.task.prototal.task_manager.entity.Task;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -10,9 +11,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class TaskService {
@@ -27,7 +25,15 @@ public class TaskService {
      * @return
      */
     public Mono<Task> createTask(Task task) {
-        return reactiveMongoTemplate.save(task);
+        Query query = new Query(Criteria.where("_id").is(task.getId()));
+        return reactiveMongoTemplate.exists(query, Task.class)
+                .flatMap(exists -> {
+                    if (exists) {
+                        return Mono.error(new DuplicateTaskException("Task with ID " + task.getId() + " already exists."));
+                    } else {
+                        return reactiveMongoTemplate.save(task);
+                    }
+                });
     }
 
     public Flux<Task> getAllTasks() {
@@ -45,17 +51,12 @@ public class TaskService {
                 .set("description", task.getDescription())
                 .set("subTasks", task.getSubTasks());
         return reactiveMongoTemplate.findAndModify(query, update, Task.class)
-                .defaultIfEmpty(task)
-                .flatMap(updatedTask -> {
-                    if (updatedTask == null) {
-                        return Mono.error(new RuntimeException("Task not found"));
-                    }
-                    return Mono.just(updatedTask);
-                });
+                .defaultIfEmpty(task);
     }
 
     public Mono<Boolean> deleteTask(String id) {
         return reactiveMongoTemplate.remove(Query.query(Criteria.where("_id").is(id)), Task.class)
+                .defaultIfEmpty(DeleteResult.unacknowledged())
                 .flatMap(deleteResult -> {
                     if (deleteResult.getDeletedCount() > 0) {
                         return Mono.just(true);
@@ -64,5 +65,4 @@ public class TaskService {
                     }
                 });
     }
-
 }
