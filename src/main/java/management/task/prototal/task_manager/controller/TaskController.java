@@ -3,7 +3,6 @@ package management.task.prototal.task_manager.controller;
 import management.task.prototal.task_manager.exception.InvalidTaskException;
 import management.task.prototal.task_manager.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,13 +12,17 @@ import management.task.prototal.task_manager.entity.Task;
 @RequestMapping("/tasks")
 public class TaskController {
 
+    private final TaskService taskService;
+
     @Autowired
-    private TaskService taskService;
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
+    }
 
     /**
      * I know this method is superfluous. But it makes it easier for someone
      * unfamiliar with MongoDB to get the ids for use in the other methods
-     * @return
+     * @return Flux
      */
     @GetMapping("getAll")
     public Flux<Task> getAllTasks() {
@@ -29,7 +32,7 @@ public class TaskController {
     @PostMapping("createTask")
     public Mono<Task> createTask (@RequestBody Task task) {
         try {
-            if (task == null || task.getDescription() == null || task.getTitle() == null) {
+            if (task.getDescription() == null || task.getTitle() == null) {
                 throw new InvalidTaskException("Task or task properties cannot be null");
             }
             return taskService.createTask(task);
@@ -53,7 +56,7 @@ public class TaskController {
     @PutMapping("/update/{id}")
     public Mono<Task> updateTask(@PathVariable String id, @RequestBody Task task) {
         try {
-            if (task == null || task.getDescription() == null || task.getTitle() == null) {
+            if (task.getDescription() == null || task.getTitle() == null) {
                 throw new InvalidTaskException("Task or task properties cannot be null");
             }
             task.setId(id);

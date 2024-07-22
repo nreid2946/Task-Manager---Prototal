@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @ExtendWith(MockitoExtension.class)
 @WebFluxTest(value = TaskController.class)
@@ -83,21 +84,37 @@ class TaskControllerTest {
                 .expectBody(Task.class).isEqualTo(task);
     }
 
-//    @Test
-//    void testCreateTaskWithInvalidTaskException() {
-//        Task task = new Task();
-//
-//        when(taskService.createTask(any(Task.class)))
-//                .thenThrow(new InvalidTaskException("Task or task properties cannot be null"));
-//
-//        webTestClient.post().uri("/tasks/createTask")
-//                .bodyValue(task)
-//                .exchange()
-//                .expectStatus().isBadRequest()
-//                .expectBody()
-//                .jsonPath("$.error").isEqualTo("Bad Request")
-//                .jsonPath("$.message").isEqualTo("Task or task properties cannot be null");
-//    }
+    @Test
+    void testCreateTaskWithEmptyTitle() {
+        Task task = new Task();
+        task.setId("1");
+        task.setTitle("");
+        task.setDescription("Description");
+
+        when(taskService.createTask(any(Task.class))).thenThrow(new InvalidTaskException("Task title cannot be empty"));
+
+        webTestClient.post().uri("/tasks/createTask")
+                .contentType(APPLICATION_JSON)
+                .bodyValue(task)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testCreateTaskWithEmptyDescription() {
+        Task task = new Task();
+        task.setId("1");
+        task.setTitle("Title");
+        task.setDescription("");
+
+        when(taskService.createTask(any(Task.class))).thenThrow(new InvalidTaskException("Task description cannot be empty"));
+
+        webTestClient.post().uri("/tasks/createTask")
+                .contentType(APPLICATION_JSON)
+                .bodyValue(task)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
 
     @Test
     void testCreateTaskWithInvalidTaskException() {
@@ -158,6 +175,36 @@ class TaskControllerTest {
     }
 
     @Test
+    void testUpdateTaskWithNullTitle() {
+        Task taskWithNullTitle = new Task();
+        taskWithNullTitle.setId("1");
+        taskWithNullTitle.setTitle(null);
+        taskWithNullTitle.setDescription("Updated Description");
+
+        when(taskService.updateTask(taskWithNullTitle))
+                .thenReturn(Mono.error(new InvalidTaskException("Task or task properties cannot be null")));
+
+        assertThrows(InvalidTaskException.class, () -> {
+            taskController.updateTask(taskWithNullTitle.getId(), taskWithNullTitle).block();
+        });
+    }
+
+    @Test
+    void testUpdateTaskWithNullDescription() {
+        Task taskWithNullDescription = new Task();
+        taskWithNullDescription.setId("1");
+        taskWithNullDescription.setTitle("Updated Task");
+        taskWithNullDescription.setDescription(null);
+
+        when(taskService.updateTask(taskWithNullDescription))
+                .thenReturn(Mono.error(new InvalidTaskException("Task or task properties cannot be null")));
+
+        assertThrows(InvalidTaskException.class, () -> {
+            taskController.updateTask(taskWithNullDescription.getId(), taskWithNullDescription).block();
+        });
+    }
+
+    @Test
     void testUpdateTaskNull() {
         Task task = new Task();
         task.setTitle(null);
@@ -187,6 +234,16 @@ class TaskControllerTest {
 
         assertThrows(InvalidTaskException.class, () -> {
             taskController.deleteTask(null).block();
+        });
+    }
+
+    @Test
+    void testDeleteTaskWithStringNullId() {
+        when(taskService.deleteTask("null"))
+                .thenReturn(Mono.error(new InvalidTaskException("Id is null")));
+
+        assertThrows(InvalidTaskException.class, () -> {
+            taskController.deleteTask("null").block();
         });
     }
 }
