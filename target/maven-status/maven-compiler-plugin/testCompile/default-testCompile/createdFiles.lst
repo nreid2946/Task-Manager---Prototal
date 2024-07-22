@@ -1,0 +1,5 @@
+management/task/prototal/task_manager/controller/TaskControllerIntegrationTests.class
+management/task/prototal/task_manager/TaskManagerApplicationTests.class
+management/task/prototal/task_manager/controller/TaskControllerTest.class
+management/task/prototal/task_manager/service/TaskServiceTest.class
+management/task/prototal/task_manager/service/TaskServiceIntegrationTests.class

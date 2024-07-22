@@ -1,0 +1,7 @@
+management/task/prototal/task_manager/entity/SubTask.class
+management/task/prototal/task_manager/entity/Task.class
+management/task/prototal/task_manager/service/TaskService.class
+management/task/prototal/task_manager/exception/DuplicateTaskException.class
+management/task/prototal/task_manager/exception/InvalidTaskException.class
+management/task/prototal/task_manager/TaskManagerApplication.class
+management/task/prototal/task_manager/controller/TaskController.class

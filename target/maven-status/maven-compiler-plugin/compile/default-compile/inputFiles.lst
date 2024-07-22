@@ -1,0 +1,7 @@
+/Users/nicholasreid/Library/CloudStorage/GoogleDrive-rnj2946@icloud.com/My Drive/Projects/Job Interview Questions/Prototal/task_manager/src/main/java/management/task/prototal/task_manager/TaskManagerApplication.java
+/Users/nicholasreid/Library/CloudStorage/GoogleDrive-rnj2946@icloud.com/My Drive/Projects/Job Interview Questions/Prototal/task_manager/src/main/java/management/task/prototal/task_manager/controller/TaskController.java
+/Users/nicholasreid/Library/CloudStorage/GoogleDrive-rnj2946@icloud.com/My Drive/Projects/Job Interview Questions/Prototal/task_manager/src/main/java/management/task/prototal/task_manager/entity/SubTask.java
+/Users/nicholasreid/Library/CloudStorage/GoogleDrive-rnj2946@icloud.com/My Drive/Projects/Job Interview Questions/Prototal/task_manager/src/main/java/management/task/prototal/task_manager/entity/Task.java
+/Users/nicholasreid/Library/CloudStorage/GoogleDrive-rnj2946@icloud.com/My Drive/Projects/Job Interview Questions/Prototal/task_manager/src/main/java/management/task/prototal/task_manager/exception/DuplicateTaskException.java
+/Users/nicholasreid/Library/CloudStorage/GoogleDrive-rnj2946@icloud.com/My Drive/Projects/Job Interview Questions/Prototal/task_manager/src/main/java/management/task/prototal/task_manager/exception/InvalidTaskException.java
+/Users/nicholasreid/Library/CloudStorage/GoogleDrive-rnj2946@icloud.com/My Drive/Projects/Job Interview Questions/Prototal/task_manager/src/main/java/management/task/prototal/task_manager/service/TaskService.java
