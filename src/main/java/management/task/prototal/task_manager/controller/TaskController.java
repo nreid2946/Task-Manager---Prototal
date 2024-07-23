@@ -1,7 +1,7 @@
 package management.task.prototal.task_manager.controller;
 
 import management.task.prototal.task_manager.exception.InvalidTaskException;
-import management.task.prototal.task_manager.service.TaskService;
+import management.task.prototal.task_manager.service.ITaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -12,21 +12,11 @@ import management.task.prototal.task_manager.entity.Task;
 @RequestMapping("/tasks")
 public class TaskController {
 
-    private final TaskService taskService;
+    private final ITaskService taskService;
 
     @Autowired
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
-    }
-
-    /**
-     * I know this method is superfluous. But it makes it easier for someone
-     * unfamiliar with MongoDB to get the ids for use in the other methods
-     * @return Flux
-     */
-    @GetMapping("getAll")
-    public Flux<Task> getAllTasks() {
-        return taskService.getAllTasks();
+    public TaskController(ITaskService iTaskService) {
+        this.taskService = iTaskService;
     }
 
     @PostMapping("createTask")
@@ -76,5 +66,16 @@ public class TaskController {
         } catch (InvalidTaskException e) {
             return Mono.error(e);
         }
+    }
+
+    // Utility methods.
+    /**
+     * I know this method is superfluous. But it makes it easier for someone
+     * unfamiliar with MongoDB to get the ids for use in the other methods
+     * @return Flux
+     */
+    @GetMapping("getAll")
+    public Flux<Task> getAllTasks() {
+        return taskService.getAllTasks();
     }
 }

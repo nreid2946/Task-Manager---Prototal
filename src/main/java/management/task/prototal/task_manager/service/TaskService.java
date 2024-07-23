@@ -13,7 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
-public class TaskService {
+public class TaskService implements ITaskService {
 
     @Autowired
     private ReactiveMongoTemplate reactiveMongoTemplate;
@@ -34,10 +34,6 @@ public class TaskService {
                         return reactiveMongoTemplate.save(task);
                     }
                 });
-    }
-
-    public Flux<Task> getAllTasks() {
-        return reactiveMongoTemplate.findAll(Task.class);
     }
 
     public Mono<Task> getTaskById(String id) {
@@ -64,5 +60,10 @@ public class TaskService {
                         return Mono.just(false);
                     }
                 });
+    }
+
+    // Utility methods.
+    public Flux<Task> getAllTasks() {
+        return reactiveMongoTemplate.findAll(Task.class);
     }
 }
