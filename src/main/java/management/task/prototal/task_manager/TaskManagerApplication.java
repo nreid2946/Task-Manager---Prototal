@@ -1,3 +1,8 @@
+/**
+ * CRUD Task application for Prototal technical challenge.
+ * Author: Nicholas Reid
+ */
+
 package management.task.prototal.task_manager;
 
 import org.springframework.boot.SpringApplication;
