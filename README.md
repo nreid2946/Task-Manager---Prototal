@@ -6,6 +6,9 @@ A CRUD app per the requirements outlined in Prototal's stage II interview docume
 
 ## Installation
 
+**I have pushed the binaries as part of the recent commit to allow for simple running.
+If for some reason this doesn't work, one may need to use 'mvn clean install' as shown in the Maven installation instructions.**
+
 First clone this repository to a directory of your choosing. Then choose your preferred installation method.
 
 ## Docker
@@ -27,7 +30,7 @@ If you run into issues, ensure that the Docker desktop client is running.
     
 If that again does not work, try running manually (below).
 
-## Installation | Manual
+## Manual / Maven
 ```bash
 # Clone this repository
 git clone https://github.com/yourusername/yourprojectname.git
