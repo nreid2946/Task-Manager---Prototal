@@ -125,11 +125,10 @@ class TaskControllerIntegrationTests {
 
     @Test
     void testUpdateTaskWithInvalidData() {
-        // Create a task with invalid data
         Task invalidTask = new Task();
         invalidTask.setId("1");
-        invalidTask.setTitle(null);  // Invalid title
-        invalidTask.setDescription(null);  // Invalid description
+        invalidTask.setTitle(null);
+        invalidTask.setDescription(null);
 
         webTestClient.put().uri("/tasks/update/" + invalidTask.getId())
                 .contentType(MediaType.APPLICATION_JSON)
