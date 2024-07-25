@@ -14,7 +14,7 @@ import reactor.test.StepVerifier;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-public class TaskServiceIntegrationTests {
+class TaskServiceIntegrationTests {
 
     @Autowired
     private TaskService taskService;
@@ -79,7 +79,6 @@ public class TaskServiceIntegrationTests {
 
     @Test
     void testCreateTaskWithExistingId() {
-        // Attempt to create a task with an existing ID
         Task duplicateTask = new Task();
         duplicateTask.setId("1");
         duplicateTask.setTitle("Duplicate Task");
@@ -87,7 +86,6 @@ public class TaskServiceIntegrationTests {
 
         Mono<Task> result = taskService.createTask(duplicateTask);
 
-        // Verify that the service throws a DuplicateTaskException for duplicate IDs
         StepVerifier.create(result)
                 .expectError(DuplicateTaskException.class)
                 .verify();
@@ -104,7 +102,6 @@ public class TaskServiceIntegrationTests {
 
     @Test
     void testUpdateTask() {
-        // Create and save the original task
         Task originalTask = new Task();
         originalTask.setId("2");
         originalTask.setTitle("Original Task");

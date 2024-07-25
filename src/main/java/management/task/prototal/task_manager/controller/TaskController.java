@@ -44,7 +44,7 @@ public class TaskController {
     }
 
     @PutMapping("/update/{id}")
-    public Mono<Task> updateTask(@PathVariable String id, @RequestBody Task task) {
+    public Mono<Task> updateTask(@PathVariable String id, @RequestBody Task task) { //
         try {
             if (task.getDescription() == null || task.getTitle() == null) {
                 throw new InvalidTaskException("Task or task properties cannot be null");
@@ -68,7 +68,6 @@ public class TaskController {
         }
     }
 
-    // Utility methods.
     /**
      * I know this method is superfluous. But it makes it easier for someone
      * unfamiliar with MongoDB to get the ids for use in the other methods

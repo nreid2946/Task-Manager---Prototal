@@ -17,8 +17,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class TaskControllerIntegrationTests {
 
-    private static final Logger logger = LoggerFactory.getLogger(TaskControllerIntegrationTests.class);
-
     @Autowired
     private WebTestClient webTestClient;
 
@@ -39,7 +37,6 @@ class TaskControllerIntegrationTests {
 
         reactiveMongoTemplate.save(task).block();
 
-        // Log to confirm the task is saved
         reactiveMongoTemplate.findById("1", Task.class).doOnNext(savedTask -> {
             if (savedTask != null) {
                 System.out.println("Task saved: " + savedTask);
@@ -79,11 +76,10 @@ class TaskControllerIntegrationTests {
 
     @Test
     void testCreateTaskWithInvalidData() {
-        // Create a task with invalid data
         Task invalidTask = new Task();
         invalidTask.setId("2");
-        invalidTask.setTitle(null);  // Invalid title
-        invalidTask.setDescription(null);  // Invalid description
+        invalidTask.setTitle(null);
+        invalidTask.setDescription(null);
 
         webTestClient.post().uri("/tasks/createTask")
                 .contentType(MediaType.APPLICATION_JSON)

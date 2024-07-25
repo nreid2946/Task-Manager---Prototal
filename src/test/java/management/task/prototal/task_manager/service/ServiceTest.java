@@ -10,9 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -43,7 +41,6 @@ class TaskServiceTest {
 
     @Test
     void testCreateTask() {
-        // Mock the behavior of exists and save methods
         when(reactiveMongoTemplate.exists(any(Query.class), eq(Task.class))).thenReturn(Mono.just(false));
         when(reactiveMongoTemplate.save(any(Task.class))).thenReturn(Mono.just(task));
 
@@ -97,24 +94,6 @@ class TaskServiceTest {
                 .expectNext(task)
                 .verifyComplete();
     }
-
-//    @Test
-//    void testUpdateTaskTaskNotFound() {
-//        Task task = new Task();
-//        task.setId("1");
-//        task.setTitle("Test Task");
-//        task.setDescription("Test Description");
-//
-//        when(reactiveMongoTemplate.findAndModify(any(Query.class), any(Update.class), any(Class.class)))
-//                .thenReturn(Mono.empty());
-//
-//        Mono<Task> result = taskService.updateTask(task);
-//
-//        StepVerifier.create(result)
-//                .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
-//                        throwable.getMessage().equals("Task not found"))
-//                .verify();
-//    }
 
     @Test
     void testDeleteTask() {
